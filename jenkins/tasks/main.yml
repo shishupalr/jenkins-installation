@@ -1,0 +1,48 @@
+---
+# tasks file for jenkins
+- name: 1) install openjdk
+  yum:
+    name: java-1.8.0-openjdk
+    state: present
+
+- name : install wget
+  yum:
+    name: wget
+    state: present
+
+- name: download jenkins repo
+  get_url:
+    url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+    dest: /etc/yum.repos.d/jenkins.repo
+
+- name: import key
+  rpm_key:
+    state: present
+    key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+
+- name: install jenkins
+  yum: name=jenkins state=present
+
+- name: start jenkins
+  service:
+    name: jenkins
+    state: started
+
+- name: enable jenkins
+  service:
+    name: jenkins
+    enabled: yes
+
+- name: disable Selinux
+  selinux:
+    state: disabled
+
+- name: init password jenkins
+  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+  changed_when: false
+  register: result
+
+- name: print init password jenkins
+  debug:
+    var: result.stdout
+    
