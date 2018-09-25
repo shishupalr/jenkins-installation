@@ -1,0 +1,17 @@
+---
+# tasks file for jenkins-plugins
+
+- name: Install plugin
+  jenkins_plugin:
+    name: Blue Ocean
+    state: present
+    with_dependencies: yes
+    url: http://192.168.56.102:8080
+    url_username: admin
+    url_password: ali@2216
+    
+- name: Restart Jenkins if required
+  service:
+    name: jenkins
+    state: restarted
+ 
