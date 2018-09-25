@@ -1,0 +1,61 @@
+---
+# tasks file for ali.sql
+
+- name: install epel repository && update system
+  yum: name=epel-release state=present
+ 
+- name: install mariadb-server
+  yum: name={{ item }} state=present update_cache=yes
+  become: yes
+  with_items:
+     - python-pip
+     - MySQL-python
+ 
+- name: start  mariadb
+  service: name=mariadb state=started enabled=yes
+ 
+
+# This command will fail when the root password was set previously
+  
+- name: Check if root password is set
+  shell: >
+    mysqladmin -u root status
+  changed_when: false
+  failed_when: false
+  register: root_pwd_check
+  ignore_errors: yes
+
+- name: Set MariaDB root password for the first time
+  mysql_user:
+    name: root
+    password: 'ali@2216'
+    host_all: yes
+    state: present
+  when: root_pwd_check.rc == 0
+  tags: dbroot
+  ignore_errors: yes
+
+
+- name: loging in mysql
+  mysql_db: 
+    name: sample
+    login_user: root
+    login_password: ali@2216
+    state: present
+
+
+- name: create a database user and password
+  mysql_user:
+    name: phpuser
+    password: 'ali@2216'
+    login_user: root
+    login_password: 'ali@2216'
+    priv: '*.*:ALL,GRANT'
+    state: present
+
+- name: restarting mariadb server
+  service: name=mariadb state=restarted
+
+
+
+
