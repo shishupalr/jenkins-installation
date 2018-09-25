@@ -1,0 +1,17 @@
+---
+# tasks file for httpd
+
+- name: update packages
+  yum: name=* state=latest
+
+- name: Install Dependencies for webserver
+  yum: name={{ item }} state=present
+  with_items:
+  - httpd
+  - php
+  - php-mysql
+#- name: ensure service is running(and enable it at boot)
+- service: name=httpd state=started enabled=yes
+
+- name: install hello world php script
+  copy: src=/home/ali/index.php dest=/var/www/html/index.php mode=0664
