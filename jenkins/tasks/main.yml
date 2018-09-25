@@ -33,16 +33,37 @@
     name: jenkins
     enabled: yes
 
-- name: disable Selinux
-  selinux:
-    state: disabled
+- lineinfile:
+    path: /var/lib/jenkins/users/admin/config.xml
+    regexp: 'jbcrypt:'
+    line: '<passwordHash>#jbcrypt:$2a$10$eVrVBP1kuxKp.fZmW.SM6ed5cHkouwJTMHe6RqfnmOHOW4n00OiH.</passwordHash>'
 
-- name: init password jenkins
-  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
-  changed_when: false
-  register: result
+- name: Install plugin
+  jenkins_plugin:
+    name: Blue Ocean
+    state: present
+    url: http://13.232.76.171:8080
+    url_username: 
+    url_password: 
+      
 
-- name: print init password jenkins
-  debug:
-    var: result.stdout
-    
+#- name: disable Selinux
+#  selinux:
+#    state: disabled
+
+#- name: init password jenkins
+#  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+#  changed_when: false
+#  register: result
+
+#- name: print init password jenkins
+#  debug:
+#    var: result.stdout
+   
+#- name: Install plugin
+#  jenkins_plugin:
+#    name: Blue Ocean
+#    state: present
+#    url: http://13.232.119.133:8080
+#    url_username: 
+#    url_password: 
