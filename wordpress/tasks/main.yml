@@ -1,0 +1,56 @@
+---
+# tasks file for site
+#- name: update packages
+#  yum: name=* state=latest
+
+- name: Installing required packges
+  package: name={{ item }} state=present
+  with_items:
+    - httpd
+    - php
+    - php-mysql
+
+- name: starting httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Adding service to firewall
+  firewalld:
+    service: http
+    permanent: true
+    state: enabled
+    zone: public
+
+- name: downloading wordpress
+  get_url:
+    url: https://wordpress.org/latest.tar.gz
+    dest: /opt/wordpress.tar.gz
+
+- name: extracting wordpress
+  unarchive:
+    src: /opt/wordpress.tar.gz
+    dest: /var/www/
+    remote_src: yes
+
+- name: deleting html folder
+  command: rm -rfd /var/www/html
+
+- name: rename wordpress to hmtl
+  command: mv /var/www/wordpress /var/www/html
+
+- name: copy sample config file
+  command: mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php creates=/var/www/html/wp-config.php
+  become: yes
+
+- name: Update WordPress config file
+  lineinfile:
+    dest: /var/www/html/wp-config.php
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - {'regexp': "define\\('DB_NAME', '(.)+'\\);", 'line': "define('DB_NAME', 'sample');"}
+    - {'regexp': "define\\('DB_USER', '(.)+'\\);", 'line': "define('DB_USER', 'wordpress');"}
+    - {'regexp': "define\\('DB_PASSWORD', '(.)+'\\);", 'line': "define('DB_PASSWORD', 'ali@2216');"}
+    - {'regexp': "define\\('DB_HOST', '(.)+'\\);", 'line': "define('DB_HOST', 'localhost');"}
