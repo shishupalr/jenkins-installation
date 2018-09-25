@@ -1,0 +1,8 @@
+---
+# defaults file for ali.sql
+
+DB vars
+db_user: ali
+db_password: ali@2216
+db_name: phpuser
+mariadb_root_password: ali@2216
